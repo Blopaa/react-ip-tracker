@@ -14,7 +14,7 @@ export const MapScreen = () => {
   const { data, loading } = useFetch(
     `https://ipinfo.io/${ipS}?token=${"c9b830dad3ed67"}`
   );
-  const { loc } = data;
+  const { loc } = data; 
 
   if (!loading) {
     let locArr = loc.split(",");
