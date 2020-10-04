@@ -4,41 +4,45 @@ import { useEffect } from "react";
 import useFetch from "../../hooks/useFetch";
 import useInput from "../../hooks/useInput";
 import SearchInput from "./SearchInput";
+import { useState } from "react";
 
 export const MapScreen = () => {
-  let nLoc;
-  const [{ ipS }, handleInputChange] = useInput({
-    ipS: "8.8.8.8",
+
+  const [state, setstate] = useState('')
+  
+  const [{ ipS }, handleInputChange, reset] = useInput({
+    ipS: "",
   });
 
-  const { data, loading } = useFetch(
-    `https://ipinfo.io/${ipS}?token=${"c9b830dad3ed67"}`
-  );
-  const { loc } = data; 
-
-  if (!loading) {
-    let locArr = loc.split(",");
-     nLoc = locArr.map((i) => parseFloat(i));
-    // console.log(nLoc);
+  const handleSubmit = () => {
+    console.log(ipS);
+    const searched = ipS
+    setstate(`https://ipinfo.io/${searched}?token=c9b830dad3ed67`)
+    reset()
   }
 
+  const { data } = useFetch(state);
+
   useEffect(() => {
-    var map = L.map("mapId").setView(!loading ? nLoc : [51.505, -0.09], 13);
+    const container = L.DomUtil.get("mapId");
+    if (container != null) {
+      container._leaflet_id = null;
+    }
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
+    const map = L.map("mapId").setView(data,13);
 
-    // L.marker([51.5, -0.09])
-    //   .addTo(map)
-    //   .bindPopup("A pretty CSS3 popup.<br> Easily customizable.")
-    //   .openPopup();
-  }, []);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
+      map
+    );
+  }, [data]);
   return (
     <div>
-      <SearchInput ipS={ipS} handleInputChange={handleInputChange} />
-      <div id="mapId" style={{ height: "100vh" }}></div>
+      <SearchInput
+        ipS={ipS}
+        handleInputChange={handleInputChange}
+        handleSubmit={handleSubmit}
+      />
+      <div id="mapId" style={{ height: "50vh" }}></div>
     </div>
   );
 };
